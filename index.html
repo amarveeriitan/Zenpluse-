@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenpulse - Shop Your Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0d6efd;
+            --primary-gradient: linear-gradient(90deg, #0d6efd, #6610f2);
+            --bg-light: #f8fafc;
+            --text-dark: #2d3748;
+            --card-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc, #eef2f7);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(13, 110, 253, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), 0 0 15px rgba(13, 110, 253, 0.05);
+        }
+
+        .neon-text { color: var(--primary-blue); }
+        .neon-bg { 
+            background: var(--primary-gradient); 
+            color: #fff; 
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        }
+
+        .progress-dash {
+            height: 4px;
+            border-radius: 2px;
+            flex: 1;
+            margin: 0 4px;
+            background: #e2e8f0;
+        }
+
+        .progress-dash.active { background: var(--primary-gradient); }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .cart-animation { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .product-image {
+            background: #f1f5f9;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--card-border);
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .glass-card:hover .product-image img {
+            transform: scale(1.08);
+        }
+
+        .badge {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: #ffffff;
+            color: var(--text-dark);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .cat-btn { transition: all 0.2s ease; }
+        .cat-btn.active {
+            background: var(--primary-blue);
+            color: #fff;
+            border-color: var(--primary-blue);
+        }
+
+        .goal-pill {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #64748b;
+        }
+        .goal-pill.active {
+            background: rgba(13, 110, 253, 0.1);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+        
+        /* Modal scrollbar */
+        #productModalContent::-webkit-scrollbar { display: none; }
+        #productModalContent { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen pb-32">
+
+    <!-- Header & Progress -->
+    <header class="pt-6 px-6 sticky top-0 bg-white/90 backdrop-blur-md z-50">
+        <div class="flex justify-between items-center mb-4">
+            <button class="p-2 bg-white rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div class="flex flex-1 mx-4 gap-2 items-center px-4">
+                <div class="flex flex-col items-center flex-1 cursor-pointer group" onclick="goToStage(1)">
+                    <div id="dash-1" class="w-full h-1 rounded-full bg-[#0d6efd] transition-all"></div>
+                    <span class="text-[9px] mt-1 text-blue-600 font-bold tracking-wider uppercase opacity-100 transition-all group-hover:opacity-100 hidden sm:block">Assessment</span>
+                </div>
+                <div class="flex flex-col items-center flex-1 cursor-pointer group" onclick="goToStage(2)">
+                    <div id="dash-2" class="w-full h-1 rounded-full bg-[#0d6efd] transition-all"></div>
+                    <span class="text-[9px] mt-1 text-blue-600 font-bold tracking-wider uppercase opacity-100 transition-all group-hover:opacity-100 hidden sm:block">Goal Setting</span>
+                </div>
+                <div class="flex flex-col items-center flex-1 cursor-pointer group" onclick="goToStage(3)">
+                    <div id="dash-3" class="w-full h-1 rounded-full bg-[#0d6efd] transition-all"></div>
+                    <span class="text-[9px] mt-1 text-blue-600 font-bold tracking-wider uppercase opacity-100 transition-all group-hover:opacity-100 hidden sm:block">Shopping</span>
+                </div>
+                <div class="flex flex-col items-center flex-1 cursor-pointer group" onclick="goToStage(4)">
+                    <div id="dash-4" class="w-full h-1 rounded-full bg-slate-200 transition-all"></div>
+                    <span class="text-[9px] mt-1 text-slate-400 font-bold tracking-wider uppercase opacity-50 transition-all group-hover:opacity-100 hidden sm:block">Checkout</span>
+                </div>
+            </div>
+            <!-- Profile Badge -->
+            <div class="bg-white border border-slate-200 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg">
+                <div class="w-6 h-6 rounded-full bg-slate-300 overflow-hidden shrink-0"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" alt="Avatar"></div>
+                <div class="text-[10px] font-bold whitespace-nowrap hidden sm:block"><span class="text-slate-400">85kg</span> → <span class="text-blue-600">70kg</span></div>
+            </div>
+        </div>
+
+        <!-- Goal Switcher (For Demo purposes) -->
+        <div class="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-2">
+            <div onclick="setGoal('Weight Loss')" id="pill-weight" class="goal-pill active px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">🔥 Weight Loss</div>
+            <div onclick="setGoal('Muscle Gain')" id="pill-muscle" class="goal-pill px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">💪 Muscle Gain</div>
+            <div onclick="setGoal('Meditation')" id="pill-meditation" class="goal-pill px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">🧘 Meditation</div>
+        </div>
+
+        <h1 class="text-3xl font-bold mb-1 brand-logo inline-block" style="background: linear-gradient(90deg, #0d6efd, #6610f2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Zen Shop <span id="goalIcon" style="-webkit-text-fill-color: initial;">🔥</span></h1>
+        <p class="text-slate-400 text-sm mb-6">Recommended for your <span id="goalText" class="neon-text font-semibold">Weight Loss Plan</span></p>
+    </header>
+
+    <!-- Category Filters -->
+    <div id="categoryContainer" class="flex gap-3 px-6 overflow-x-auto no-scrollbar mb-8">
+        <button onclick="filterProducts('All')" class="cat-btn active bg-white px-6 py-2 rounded-full font-semibold whitespace-nowrap text-sm border border-slate-200">All Items</button>
+        <button onclick="filterProducts('Supplements')" class="cat-btn bg-white px-6 py-2 rounded-full font-semibold whitespace-nowrap text-sm border border-slate-200">Supplements</button>
+        <button onclick="filterProducts('Gear')" class="cat-btn bg-white px-6 py-2 rounded-full font-semibold whitespace-nowrap text-sm border border-slate-200">Gear</button>
+        <button onclick="filterProducts('Wellness')" class="cat-btn bg-white px-6 py-2 rounded-full font-semibold whitespace-nowrap text-sm border border-slate-200">Wellness</button>
+    </div>
+
+    <!-- Dynamic Product Grid -->
+    <main id="productGrid" class="px-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <!-- Products injected here -->
+    </main>
+
+    <!-- Custom Cart Modal -->
+    <div id="cartDrawer" class="fixed inset-0 bg-slate-900/40 z-[100] hidden flex-end items-end">
+        <div class="w-full bg-white rounded-t-[32px] p-8 cart-animation border-t border-slate-200 max-h-[90vh] flex flex-col shadow-[0_-20px_50px_rgba(0,0,0,0.1)]">
+            <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-6 shrink-0"></div>
+            <div class="flex justify-between items-center mb-6 shrink-0">
+                <h2 class="text-2xl font-bold">Your Cart</h2>
+                <button onclick="clearCart()" class="text-xs text-red-400 font-bold uppercase tracking-widest">Clear All</button>
+            </div>
+            <div id="cartItems" class="space-y-4 mb-8 overflow-y-auto pr-2 custom-scrollbar"></div>
+            <div class="mt-auto">
+                <div class="flex justify-between items-center mb-6 pt-4 border-t border-slate-200">
+                    <span class="text-slate-400">Total</span>
+                    <span id="cartTotal" class="text-2xl font-bold neon-text">₹0</span>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="closeCart()" class="flex-1 py-4 bg-slate-100 rounded-2xl font-bold">Close</button>
+                    <button onclick="checkout()" class="flex-[2] py-4 neon-bg rounded-2xl font-bold">Checkout Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[150] hidden items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md overflow-y-auto shadow-2xl transform scale-95 opacity-0 transition-all duration-300 max-h-[90vh]" id="productModalContent">
+            <div class="relative h-64 bg-slate-100 shrink-0">
+                <button onclick="closeProductModal()" class="absolute top-4 right-4 z-10 p-2 bg-black/50 backdrop-blur-md rounded-full text-slate-800 hover:bg-slate-900/60 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+                <img id="modalImage" src="" alt="Product" class="w-full h-full object-cover">
+                <span id="modalBadge" class="absolute top-4 left-4 badge text-slate-800 z-10 font-heading"></span>
+            </div>
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-2">
+                    <h2 id="modalTitle" class="text-2xl font-bold font-heading text-slate-800"></h2>
+                    <span id="modalPrice" class="text-xl font-black neon-text"></span>
+                </div>
+                <div class="mb-4"></div>
+                <p id="modalDesc" class="text-slate-600 text-sm mb-6 leading-relaxed"></p>
+                <button id="modalAddBtn" class="w-full py-4 neon-bg rounded-2xl font-bold text-lg transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(0,255,163,0.3)]">Add to Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Feedback Overlay -->
+    <div id="feedback" class="fixed top-10 left-1/2 -translate-x-1/2 bg-[#0d6efd] text-white px-8 py-4 rounded-full font-bold shadow-[0_0_20px_rgba(0,255,163,0.4)] z-[200] opacity-0 pointer-events-none transition-all duration-300 transform -translate-y-4">
+        Added to cart! 🛒
+    </div>
+
+    <!-- Floating Cart Bar -->
+    <div id="cartBar" class="fixed bottom-8 left-6 right-6 bg-white border border-slate-200 p-4 rounded-2xl flex justify-between items-center z-[90] hidden shadow-2xl transition-all">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center neon-bg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+            </div>
+            <div>
+                <p id="itemCount" class="text-xs text-slate-400 font-semibold uppercase">0 ITEMS</p>
+                <p id="totalPreview" class="font-bold text-lg">₹0</p>
+            </div>
+        </div>
+        <button onclick="openCart()" class="bg-[#0d6efd]/10 text-blue-600 px-6 py-2 rounded-xl font-bold border border-[#00ffa3]/20 hover:bg-[#0d6efd]/20">
+            View Cart
+        </button>
+    </div>
+
+    <script>
+        const productData = {
+            'Weight Loss': [
+                { id: 101, name: 'L-Carnitine Liquid', price: 1899, category: 'Supplements', badge: 'Fat Burn', badgeColor: 'bg-orange-500/80', desc: 'Converts fat into energy for intense workouts.', image: 'assets/l-carnitine.png', stockLabel: 'Best Seller' },
+                { id: 102, name: 'Fiber Pro Plus', price: 999, category: 'Supplements', badge: 'Digestion', badgeColor: 'bg-green-500/80', desc: 'Keep full for longer and manage appetite.', image: 'assets/fiber-pro.png' },
+                { id: 103, name: 'Yoga Mat (Pro)', price: 1499, category: 'Gear', badge: 'Yoga', badgeColor: 'bg-blue-500/80', desc: 'Premium grip for your daily home sessions.', image: 'assets/yoga-mat.png' },
+                { id: 104, name: 'Body Weight Scale', price: 2199, category: 'Gear', badge: 'Track', badgeColor: 'bg-slate-500/80', desc: 'Smart scale syncs with Zenpulse app.', image: 'assets/scale.png' },
+                { id: 105, name: 'Detox Tea Set', price: 599, category: 'Wellness', badge: 'Cleanse', badgeColor: 'bg-emerald-500/80', desc: 'Natural herbs to boost metabolic rate.', image: 'assets/detox-tea.png', stockLabel: 'Only 3 left!' },
+                { id: 106, name: 'Fat Caliper', price: 299, category: 'Gear', badge: 'Measure', badgeColor: 'bg-slate-500/80', desc: 'Accurately measure body fat percentage.', image: 'assets/fat-caliper.png' },
+                { id: 107, name: 'Jump Rope', price: 499, category: 'Gear', badge: 'Cardio', badgeColor: 'bg-blue-500/80', desc: 'High-speed ball bearing jump rope.', image: 'assets/jump-rope.png' },
+                { id: 108, name: 'Meal Prep Containers', price: 899, category: 'Gear', badge: 'Diet', badgeColor: 'bg-green-500/80', desc: 'Set of 5 BPA-free portion control containers.', image: 'assets/meal-prep.png' },
+                { id: 109, name: 'Green Tea Extract', price: 799, category: 'Supplements', badge: 'Metabolism', badgeColor: 'bg-emerald-500/80', desc: 'Antioxidant-rich capsules for daily wellness.', image: 'assets/green-tea.png' },
+                { id: 110, name: 'Shaker Bottle', price: 349, category: 'Gear', badge: 'Hydrate', badgeColor: 'bg-cyan-500/80', desc: 'Leak-proof shaker with mixing ball.', image: 'assets/shaker-bottle.png' }
+            ],
+            'Muscle Gain': [
+                { id: 201, name: 'Mass Gainer 2kg', price: 3499, category: 'Supplements', badge: 'High Calorie', badgeColor: 'bg-red-500/80', desc: '1200kcal per serving to crush your goals.', image: 'assets/mass-gainer.png' },
+                { id: 202, name: 'Adjustable Dumbbells', price: 8999, category: 'Gear', badge: 'Strength', badgeColor: 'bg-slate-300/80', desc: 'Space saving 2kg-20kg heavy weights.', image: 'assets/dumbbells.png', stockLabel: 'Best Seller' },
+                { id: 203, name: 'Wrist Wraps (Pair)', price: 799, category: 'Gear', badge: 'Support', badgeColor: 'bg-indigo-500/80', desc: 'Max support for heavy bench and overhead press.', image: 'assets/wrist-wraps.png' },
+                { id: 204, name: 'ZMA Recovery', price: 1199, category: 'Vitamins', badge: 'Sleep', badgeColor: 'bg-purple-500/80', desc: 'Boost natural hormones for overnight repair.', image: 'assets/zma.png' },
+                { id: 205, name: 'Pre-Workout Shot', price: 149, category: 'Supplements', badge: 'Power', badgeColor: 'bg-yellow-500/80', desc: 'High caffeine for explosive gym sessions.', image: 'assets/pre-workout.png', stockLabel: 'Only 12 left!' },
+                { id: 206, name: 'Creatine Monohydrate', price: 899, category: 'Supplements', badge: 'Strength', badgeColor: 'bg-red-600/80', desc: '100% pure micronized creatine powder.', image: 'assets/creatine.png' },
+                { id: 207, name: 'Lifting Belt', price: 1299, category: 'Gear', badge: 'Safety', badgeColor: 'bg-white', desc: 'Premium leather belt for heavy lifts.', image: 'assets/lifting-belt.png' },
+                { id: 208, name: 'Protein Bars (Box)', price: 1199, category: 'Supplements', badge: 'Snack', badgeColor: 'bg-amber-600/80', desc: 'Pack of 12 chocolate peanut butter bars.', image: 'assets/protein-bars.png' },
+                { id: 209, name: 'Resistance Bands', price: 899, category: 'Gear', badge: 'Mobility', badgeColor: 'bg-orange-500/80', desc: 'Set of 5 bands with different resistance levels.', image: 'assets/resistance-bands.png' },
+                { id: 210, name: 'Liquid Chalk', price: 399, category: 'Gear', badge: 'Grip', badgeColor: 'bg-gray-400/80', desc: 'Mess-free grip enhancer for deadlifts.', image: 'assets/liquid-chalk.png' }
+            ],
+            'Meditation': [
+                { id: 301, name: 'Zafu Cushion', price: 1899, category: 'Gear', badge: 'Comfort', badgeColor: 'bg-teal-500/80', desc: 'Ergonomic posture support for deep meditation.', image: 'assets/zafu.png' },
+                { id: 302, name: 'Zen Diffuser', price: 2499, category: 'Wellness', badge: 'Aroma', badgeColor: 'bg-pink-500/80', desc: 'Ultrasonic tech with 7 color ambient LED.', image: 'assets/diffuser.png', stockLabel: 'Best Seller' },
+                { id: 303, name: 'Essential Oil Pack', price: 899, category: 'Wellness', badge: 'Relax', badgeColor: 'bg-indigo-400/80', desc: 'Lavender & Eucalyptus for stress relief.', image: 'assets/essential-oils.png' },
+                { id: 304, name: 'Crystal Singing Bowl', price: 4299, category: 'Wellness', badge: 'Sound', badgeColor: 'bg-amber-400/80', desc: '432Hz frequency for chakra alignment.', image: 'assets/singing-bowl.png', stockLabel: 'Only 1 left!' },
+                { id: 305, name: 'Journal & Pen Set', price: 699, category: 'Wellness', badge: 'Mindset', badgeColor: 'bg-slate-400/80', desc: 'Track your thoughts and mindfulness journey.', image: 'assets/journal-set.png' },
+                { id: 306, name: 'Tibetan Bells', price: 1299, category: 'Wellness', badge: 'Focus', badgeColor: 'bg-yellow-600/80', desc: 'Handcrafted Tingsha bells for clarity.', image: 'assets/tibetan-bells.png' },
+                { id: 307, name: 'Incense Sticks', price: 299, category: 'Wellness', badge: 'Aroma', badgeColor: 'bg-orange-400/80', desc: 'Sandalwood and Patchouli blend.', image: 'assets/incense-sticks.png' },
+                { id: 308, name: 'Meditation Timer', price: 1499, category: 'Gear', badge: 'Track', badgeColor: 'bg-slate-300/80', desc: 'Silent visual timer for uninterrupted sessions.', image: 'assets/meditation-timer.png' },
+                { id: 309, name: 'Mala Beads', price: 899, category: 'Wellness', badge: 'Mantra', badgeColor: 'bg-red-800/80', desc: '108 bead traditional wooden mala.', image: 'assets/mala-beads.png' },
+                { id: 310, name: 'Eye Mask', price: 499, category: 'Wellness', badge: 'Sleep', badgeColor: 'bg-indigo-600/80', desc: 'Silk mask for sensory deprivation.', image: 'assets/eye-mask.png' }
+            ]
+        };
+
+        let currentGoal = 'Weight Loss';
+        let currentFilter = 'All';
+        let cart = [];
+
+        function setGoal(goal) {
+            currentGoal = goal;
+            document.querySelectorAll('.goal-pill').forEach(p => p.classList.remove('active'));
+            document.getElementById(`pill-${goal.toLowerCase().split(' ')[0]}`).classList.add('active');
+            
+            document.getElementById('goalText').innerText = `${goal} Plan`;
+            document.getElementById('goalIcon').innerText = goal === 'Weight Loss' ? '🔥' : (goal === 'Muscle Gain' ? '💪' : '🧘');
+            
+            currentFilter = 'All';
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            const data = productData[currentGoal];
+            const filtered = currentFilter === 'All' ? data : data.filter(p => p.category === currentFilter);
+            
+            grid.innerHTML = filtered.map(p => `
+                <div class="glass-card p-5 flex flex-col animate-in fade-in zoom-in duration-500">
+                    <div class="product-image h-52 w-full mb-5 relative group cursor-pointer" onclick="openProductModal(${p.id})">
+                        <span class="absolute top-3 left-3 badge ${p.badgeColor} text-slate-800 z-10 font-heading shadow-md">${p.badge}</span>
+                        ${p.stockLabel ? `<span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-1 rounded-full bg-white/80 text-${p.stockLabel.includes('left') ? 'red-400' : 'yellow-400'} border border-${p.stockLabel.includes('left') ? 'red-500/30' : 'yellow-500/30'} z-10 backdrop-blur-md shadow-lg">${p.stockLabel}</span>` : ''}
+                        <img src="${p.image}" alt="${p.name}" class="rounded-2xl" onerror="this.src='https://via.placeholder.com/400x400?text=${encodeURIComponent(p.name)}'">
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 z-10 rounded-2xl">
+                            <span class="bg-white/20 backdrop-blur-md text-slate-800 px-4 py-2 rounded-full font-bold text-sm shadow-xl border border-white/20">Quick View</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-bold text-lg leading-tight text-slate-800 cursor-pointer hover:text-blue-600 transition-colors" onclick="openProductModal(${p.id})">${p.name}</h3>
+                        <span class="font-black text-xl neon-text">₹${p.price.toLocaleString()}</span>
+                    </div>
+                    <div class="mb-3"></div>
+                    <p class="text-slate-400 text-xs mb-5 flex-grow leading-relaxed">${p.desc}</p>
+                    <button onclick="addToCart('${p.name}', ${p.price}, ${p.id})" class="w-full py-4 neon-bg rounded-2xl font-bold text-sm transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_15px_rgba(0,255,163,0.2)]">Add to Plan</button>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts(cat) {
+            currentFilter = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.includes(cat));
+            });
+            renderProducts();
+        }
+
+        function getIcon(type) {
+            const icons = {
+                protein: '<svg width="50" height="70" viewBox="0 0 40 50" fill="none"><rect x="5" y="10" width="30" height="35" rx="4" fill="#334155" /><rect x="5" y="15" width="30" height="10" fill="#00ffa3" /></svg>',
+                liquid: '<svg width="50" height="70" viewBox="0 0 40 50" fill="none"><path d="M12 5H28V45H12V5Z" fill="#334155" /><circle cx="20" cy="25" r="8" stroke="#00ffa3" stroke-width="2" /></svg>',
+                mat: '<svg width="50" height="70" viewBox="0 0 40 50" fill="none"><rect x="5" y="20" width="30" height="10" rx="5" stroke="#00ffa3" stroke-width="3" /></svg>',
+                dumbbell: '<svg width="50" height="70" viewBox="0 0 40 50" fill="none"><rect x="5" y="15" width="8" height="20" fill="#334155" /><rect x="27" y="15" width="8" height="20" fill="#334155" /><rect x="13" y="23" width="14" height="4" fill="#00ffa3" /></svg>',
+                straps: '<svg width="50" height="70" viewBox="0 0 40 50" fill="none"><rect x="10" y="20" width="20" height="10" fill="#334155" /><path d="M10 20L30 30" stroke="#00ffa3" stroke-width="2"/></svg>',
+                tea: '<svg width="50" height="70" viewBox="0 0 40 50" fill="none"><path d="M10 20C10 15 30 15 30 20V40H10V20Z" fill="#334155" /><path d="M30 25H35V30H30" stroke="#00ffa3" stroke-width="2" /></svg>',
+                scale: '<svg width="50" height="70" viewBox="0 0 40 50" fill="none"><rect x="5" y="15" width="30" height="25" rx="4" fill="#334155" /><rect x="15" y="20" width="10" height="6" fill="#00ffa3" opacity="0.5" /></svg>'
+            };
+            return icons[type] || icons['protein'];
+        }
+
+        function getProductById(id) {
+            for (const category in productData) {
+                const product = productData[category].find(p => p.id === id);
+                if (product) return product;
+            }
+            return null;
+        }
+
+        function openProductModal(id) {
+            const product = getProductById(id);
+            if (!product) return;
+
+            document.getElementById('modalImage').src = product.image;
+            document.getElementById('modalImage').onerror = function() { this.src='https://via.placeholder.com/400x400?text=' + encodeURIComponent(product.name); };
+            document.getElementById('modalBadge').className = `absolute top-4 left-4 badge ${product.badgeColor} text-slate-800 z-10 font-heading`;
+            document.getElementById('modalBadge').innerText = product.badge;
+            document.getElementById('modalTitle').innerText = product.name;
+            document.getElementById('modalPrice').innerText = `₹${product.price.toLocaleString()}`;
+            // Ratings removed
+            document.getElementById('modalDesc').innerText = product.desc;
+            
+            const btn = document.getElementById('modalAddBtn');
+            btn.onclick = () => { addToCart(product.name, product.price, product.id); closeProductModal(); };
+
+            const modal = document.getElementById('productModal');
+            const modalContent = document.getElementById('productModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeProductModal() {
+            const modal = document.getElementById('productModal');
+            const modalContent = document.getElementById('productModalContent');
+            
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        function addToCart(name, price, id) {
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, name, price, quantity: 1 });
+            }
+            updateUI();
+            showFeedback();
+        }
+
+        function updateQuantity(id, change) {
+            const itemIndex = cart.findIndex(item => item.id === id);
+            if (itemIndex > -1) {
+                cart[itemIndex].quantity += change;
+                if (cart[itemIndex].quantity <= 0) {
+                    cart.splice(itemIndex, 1);
+                }
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            const cartBar = document.getElementById('cartBar');
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalValue = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            cartBar.classList.toggle('hidden', cart.length === 0);
+            if (cart.length > 0) cartBar.classList.add('flex');
+
+            document.getElementById('itemCount').innerText = `${totalCount} ITEM${totalCount !== 1 ? 'S' : ''}`;
+            document.getElementById('totalPreview').innerText = `₹${totalValue.toLocaleString()}`;
+            document.getElementById('cartTotal').innerText = `₹${totalValue.toLocaleString()}`;
+
+            const itemsContainer = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = `<div class="py-10 text-center opacity-30"><p>Cart is empty</p></div>`;
+            } else {
+                itemsContainer.innerHTML = cart.map((item, idx) => `
+                    <div class="flex justify-between items-center bg-slate-100/30 p-3 rounded-xl border border-slate-200/50">
+                        <div class="flex items-center gap-3 flex-1">
+                            <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-[10px] font-bold text-blue-600">#${idx+1}</div>
+                            <p class="font-semibold text-sm line-clamp-1">${item.name}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center bg-white rounded-lg border border-slate-200 overflow-hidden shrink-0">
+                                <button onclick="updateQuantity(${item.id}, -1)" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-800 transition bg-white hover:bg-slate-200/50">-</button>
+                                <span class="w-6 text-center text-sm font-bold bg-slate-100/20 leading-7">${item.quantity}</span>
+                                <button onclick="updateQuantity(${item.id}, 1)" class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-800 transition bg-white hover:bg-slate-200/50">+</button>
+                            </div>
+                            <span class="font-bold text-sm w-16 text-right shrink-0">₹${(item.price * item.quantity).toLocaleString()}</span>
+                            <button onclick="updateQuantity(${item.id}, -${item.quantity})" class="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function clearCart() { cart = []; updateUI(); closeCart(); }
+        function openCart() { document.getElementById('cartDrawer').classList.remove('hidden'); document.getElementById('cartDrawer').classList.add('flex'); }
+        function closeCart() { document.getElementById('cartDrawer').classList.add('hidden'); }
+        
+        function goToStage(stage) {
+            for(let i=1; i<=4; i++) {
+                const dash = document.getElementById('dash-'+i);
+                const text = dash.nextElementSibling;
+                if(i <= stage) {
+                    dash.classList.remove('bg-slate-200');
+                    dash.style.background = 'var(--primary-gradient)';
+                    text.classList.remove('text-slate-400', 'opacity-50');
+                    text.classList.add('text-blue-600', 'opacity-100');
+                } else {
+                    dash.classList.add('bg-slate-200');
+                    dash.classList.remove('bg-[#0d6efd]');
+                    text.classList.add('text-slate-400', 'opacity-50');
+                    text.classList.remove('text-blue-600', 'opacity-100');
+                }
+            }
+        }
+
+        function showFeedback() {
+            const fb = document.getElementById('feedback');
+            fb.style.opacity = '1';
+            fb.style.transform = 'translateX(-50%) translateY(0)';
+            setTimeout(() => { fb.style.opacity = '0'; fb.style.transform = 'translateX(-50%) translateY(-1rem)'; }, 2000);
+        }
+
+        function checkout() {
+            const drawer = document.getElementById('cartDrawer');
+            drawer.innerHTML = `
+                <div class="w-full bg-white rounded-t-[32px] p-10 text-center cart-animation">
+                    <div class="w-20 h-20 bg-[#0d6efd] rounded-full mx-auto flex items-center justify-center mb-6"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4"><path d="M20 6 9 17l-5-5"/></svg></div>
+                    <h2 class="text-3xl font-bold mb-2">Order Confirmed!</h2>
+                    <p class="text-slate-400 mb-8">Your Zenpulse gear is being prepared for shipping.</p>
+                    <button onclick="location.reload()" class="w-full py-4 bg-[#0d6efd] text-white font-bold rounded-2xl">Return Home</button>
+                </div>
+            `;
+        }
+
+        // Init
+        renderProducts();
+        document.getElementById('cartDrawer').addEventListener('click', function(e) { if (e.target === this) closeCart(); });
+    </script>
+</body>
+</html>
